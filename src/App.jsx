@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import DashboardPage from './pages/DashboardPage'
+import PricingPage from "./pages/PricingPage";
 import ProjectGeneratorPage from './pages/ProjectGeneratorPage'
 import ResumeAnalyzerPage from './pages/ResumeAnalyzerPage'
 import CareerPathPage from './pages/CareerPathPage'
@@ -26,6 +27,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
       <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
       <Route path="/signup" element={user ? <Navigate to="/dashboard" /> : <SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

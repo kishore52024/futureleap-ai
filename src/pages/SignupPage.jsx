@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Zap, Eye, EyeOff, ArrowRight, Check } from 'lucide-react'
-import { signUp } from '../lib/supabase'
+import { signUp, createFreeSubscription } from '../lib/supabase'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -12,17 +12,37 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    if (form.password.length < 8) return setError('Password must be at least 8 characters.')
-    setLoading(true)
-    const { error: err } = await signUp(form.email, form.password, form.name)
-    setLoading(false)
-    if (err) return setError(err.message)
-    setSuccess(true)
-    setTimeout(() => navigate('/dashboard'), 2000)
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  setError('')
+
+  if (form.password.length < 8) {
+    return setError('Password must be at least 8 characters.')
   }
+
+  setLoading(true)
+
+  const { data, error: err } = await signUp(
+    form.email,
+    form.password,
+    form.name
+  )
+
+  if (err) {
+    setLoading(false)
+    return setError(err.message)
+  }
+
+  const userId = data?.user?.id
+
+  if (userId) {
+    await createFreeSubscription(userId)
+  }
+
+  setLoading(false)
+  setSuccess(true)
+  setTimeout(() => navigate('/dashboard'), 2000)
+}
 
   const perks = ['5 free AI generations', 'Resume analysis included', 'No credit card needed']
 
