@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Zap, Eye, EyeOff, ArrowRight, Check } from 'lucide-react'
 import { signUp, createFreeSubscription } from '../lib/supabase'
 
 export default function SignupPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const selectedPlan = searchParams.get('plan') || 'free'
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -36,7 +38,7 @@ const handleSubmit = async (e) => {
   const userId = data?.user?.id
 
   if (userId) {
-    await createFreeSubscription(userId)
+  await createFreeSubscription(userId, selectedPlan)
   }
 
   setLoading(false)

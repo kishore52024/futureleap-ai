@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { PLAN_LIMITS, PLAN_NAMES } from '../config/plans'
 import { Lightbulb, FileText, MapPin, ArrowRight, Sparkles, TrendingUp, Clock } from 'lucide-react'
 import Sidebar from '../components/layout/Sidebar'
 import { useAuth } from '../hooks/useAuth'
-import { getUserStats, getSavedProjects } from '../lib/supabase'
+import {
+  getUserStats,
+  getSavedProjects,
+  getSubscription,
+  getMonthlyUsage,
+} from '../lib/supabase'
 
 const tools = [
   {
@@ -59,9 +65,35 @@ export default function DashboardPage() {
   const { user } = useAuth()
   const [stats, setStats] = useState({ projects: 0, careers: 0, resumes: 0 })
   const [recentProjects, setRecentProjects] = useState([])
+  const [subscription, setSubscription] = useState(null)
+
+const [usage, setUsage] = useState({
+  project: 0,
+  resume: 0,
+  career: 0,
+})
 
   useEffect(() => {
     if (!user) return
+    const loadSubscription = async () => {
+  const { data } = await getSubscription(user.id)
+
+  if (!data) return
+
+  setSubscription(data)
+
+  const project = await getMonthlyUsage(user.id, 'project')
+  const resume = await getMonthlyUsage(user.id, 'resume')
+  const career = await getMonthlyUsage(user.id, 'career')
+
+  setUsage({
+    project: project.count,
+    resume: resume.count,
+    career: career.count,
+  })
+}
+
+loadSubscription()
     getUserStats(user.id).then(setStats).catch(() => {})
     getSavedProjects(user.id).then(({ data }) => {
       if (data) setRecentProjects(data.slice(0, 3))
@@ -105,6 +137,44 @@ export default function DashboardPage() {
             transition={{ delay: 0.25 }}
           >
             <h2 className="font-display font-700 text-lg text-white mb-4">AI Tools</h2>
+            {/* Subscription Usage */}
+{subscription && (
+  <div className="glass-card p-6 mb-10">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+      <div>
+        <p className="text-xs text-slate-500 font-mono mb-1">CURRENT PLAN</p>
+        <h2 className="font-display font-800 text-2xl text-white">
+          {PLAN_NAMES[subscription.plan] || 'Free'} Plan
+        </h2>
+      </div>
+
+      <Link to="/pricing" className="btn-primary text-sm justify-center">
+        Upgrade Plan
+      </Link>
+    </div>
+
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {[
+        ['Project Ideas', 'project', 'text-cyan-400'],
+        ['Resume Analyses', 'resume', 'text-green-400'],
+        ['Career Paths', 'career', 'text-purple-400'],
+      ].map(([label, key, color]) => {
+        const limit = PLAN_LIMITS[subscription.plan]?.[key]
+        const used = usage[key]
+        const displayLimit = limit === Infinity ? 'Unlimited' : limit
+
+        return (
+          <div key={key} className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4">
+            <div className="text-xs text-slate-500 mb-1">{label}</div>
+            <div className={`font-display font-800 text-xl ${color}`}>
+              {used} / {displayLimit}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  </div>
+)}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
               {tools.map((t) => (
                 <Link key={t.href} to={t.href}>

@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { PLAN_LIMITS } from '../config/plans'
 import { FileText, Upload, Sparkles, CheckCircle, XCircle, AlertCircle, Tag } from 'lucide-react'
 import Sidebar from '../components/layout/Sidebar'
 import { useAuth } from '../hooks/useAuth'
 import { analyzeResume } from '../lib/openai'
-import { saveResumeAnalysis } from '../lib/supabase'
+import {
+  saveResumeAnalysis,
+  getSubscription,
+  getMonthlyUsage,
+  trackUsage,
+} from '../lib/supabase'
 
 function ScoreRing({ score }) {
   const color = score >= 80 ? '#00ff87' : score >= 60 ? '#00e5ff' : '#bf5af2'
@@ -54,6 +60,14 @@ export default function ResumeAnalyzerPage() {
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [fileName, setFileName] = useState('')
+  const [subscription, setSubscription] = useState(null)
+  useEffect(() => {
+  if (!user) return
+
+  getSubscription(user.id).then(({ data }) => {
+    if (data) setSubscription(data)
+  })
+}, [user])
 
   const handleFile = (e) => {
     const file = e.target.files[0]
@@ -64,26 +78,58 @@ export default function ResumeAnalyzerPage() {
     reader.readAsText(file)
   }
 
-  const handleAnalyze = async (e) => {
-    e.preventDefault()
-    if (!resumeText.trim()) return setError('Please paste your resume text or upload a .txt file.')
-    setError('')
-    setResult(null)
-    setSaved(false)
-    setLoading(true)
-    try {
-      const data = await analyzeResume(resumeText)
-      setResult(data)
-      if (user) {
-        await saveResumeAnalysis(user.id, { score: data.score, grade: data.grade, summary: data.summary })
-      }
-      setSaved(true)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+const handleAnalyze = async (e) => {
+  e.preventDefault()
+
+  if (!resumeText.trim()) {
+    return setError('Please paste your resume text or upload a .txt file.')
   }
+
+  setError('')
+  setResult(null)
+  setSaved(false)
+
+  if (!user) {
+    setError('Please login to analyze resumes.')
+    return
+  }
+
+  const plan = subscription?.plan || 'free'
+  const limit = PLAN_LIMITS[plan]?.resume ?? PLAN_LIMITS.free.resume
+
+  const { count, error: usageError } = await getMonthlyUsage(user.id, 'resume')
+
+  if (usageError) {
+    setError(usageError.message)
+    return
+  }
+
+  if (limit !== Infinity && count >= limit) {
+    setError('🚀 You reached your monthly Resume Analyzer limit. Upgrade your plan to continue.')
+    return
+  }
+
+  setLoading(true)
+
+  try {
+    const data = await analyzeResume(resumeText)
+    setResult(data)
+
+    await saveResumeAnalysis(user.id, {
+      score: data.score,
+      grade: data.grade,
+      summary: data.summary,
+    })
+
+    await trackUsage(user.id, 'resume')
+
+    setSaved(true)
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
     <div className="flex min-h-screen bg-dark-950">

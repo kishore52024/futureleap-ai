@@ -6,8 +6,16 @@ import {
 } from 'lucide-react'
 import Sidebar from '../components/layout/Sidebar'
 import { useAuth } from '../hooks/useAuth'
+import { PLAN_LIMITS } from '../config/plans'
 import { generateProjectIdea } from '../lib/openai'
-import { saveProject, getSavedProjects, deleteProject } from '../lib/supabase'
+import {
+  saveProject,
+  getSavedProjects,
+  deleteProject,
+  getSubscription,
+  getMonthlyUsage,
+  trackUsage
+} from '../lib/supabase'
 
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced']
 const DOMAINS = ['Web App', 'Mobile App', 'AI/ML', 'Data Science', 'Blockchain', 'Game Dev', 'IoT', 'Cybersecurity', 'Open Source', 'SaaS Product']
@@ -107,28 +115,62 @@ export default function ProjectGeneratorPage() {
   const [saved, setSaved] = useState(false)
   const [savedProjects, setSavedProjects] = useState([])
   const [showSaved, setShowSaved] = useState(false)
+  const [subscription, setSubscription] = useState(null)
 
   useEffect(() => {
     if (user) {
+      getSubscription(user.id).then(({ data }) => {
+  if (data) setSubscription(data)
+})
       getSavedProjects(user.id).then(({ data }) => { if (data) setSavedProjects(data) })
     }
   }, [user])
+const handleGenerate = async (e) => {
+  e.preventDefault()
+  setError('')
+  setResult(null)
+  setSaved(false)
 
-  const handleGenerate = async (e) => {
-    e.preventDefault()
-    setError('')
-    setResult(null)
-    setSaved(false)
-    setLoading(true)
-    try {
-      const data = await generateProjectIdea(form)
-      setResult(data)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+  if (!user) {
+    setError('Please login to generate project ideas.')
+    return
   }
+
+  const plan = subscription?.plan || 'free'
+  const limit = PLAN_LIMITS[plan]?.project ?? PLAN_LIMITS.free.project
+
+  const { count, error: usageError } = await getMonthlyUsage(user.id, 'project')
+
+  if (usageError) {
+    setError(usageError.message)
+    return
+  }
+
+  if (limit !== Infinity && count >= limit) {
+    setError('🚀 You reached your monthly Project Generator limit. Upgrade your plan to continue.')
+    return
+  }
+
+  setLoading(true)
+
+  try {
+    const data = await generateProjectIdea(form)
+    setResult(data)
+
+   const { data: usageData, error: usageError } = await trackUsage(
+  user.id,
+  'project'
+)
+
+console.log('Current User:', user)
+console.log('Usage Data:', usageData)
+console.log('Usage Error:', usageError)
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setLoading(false)
+  }
+}
 
   const handleSave = async () => {
     if (!result || !user) return

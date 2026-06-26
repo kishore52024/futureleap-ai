@@ -174,13 +174,13 @@ export const getSubscription = async (userId) => {
   return { data, error }
 }
 
-export const createFreeSubscription = async (userId) => {
+export const createFreeSubscription = async (userId, plan = 'free') => {
   const { data, error } = await supabase
     .from('subscriptions')
     .insert([
       {
         user_id: userId,
-        plan: 'free',
+        plan,
         status: 'active',
       },
     ])

@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { PLAN_LIMITS } from '../config/plans'
 import { MapPin, Sparkles, Clock, DollarSign, Award, Building2, BookOpen, Code2, ChevronRight } from 'lucide-react'
 import Sidebar from '../components/layout/Sidebar'
 import { useAuth } from '../hooks/useAuth'
 import { generateCareerPath } from '../lib/openai'
-import { saveCareerPath } from '../lib/supabase'
+import {
+  saveCareerPath,
+  getSubscription,
+  getMonthlyUsage,
+  trackUsage
+} from '../lib/supabase'
 
 function PhaseCard({ phase, index }) {
   const colors = [
@@ -94,6 +100,14 @@ export default function CareerPathPage() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
+  const [subscription, setSubscription] = useState(null)
+  useEffect(() => {
+  if (!user) return
+
+  getSubscription(user.id).then(({ data }) => {
+    if (data) setSubscription(data)
+  })
+}, [user])
 
   const handleGenerate = async (e) => {
     e.preventDefault()
