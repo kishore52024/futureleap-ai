@@ -17,8 +17,10 @@ async function callViaAPI(type, payload) {
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 const PROMPTS = {
-  project: ({ skills, interests, difficulty, domain }) => `
-You are a senior software engineer and startup mentor. Generate a detailed project idea for a student.
+project: ({ skills, interests, difficulty, domain }) => `
+You are a senior software engineer, startup mentor, and academic project guide.
+
+Generate a COMPLETE PROJECT BLUEPRINT for a student.
 
 Student Profile:
 - Skills: ${skills}
@@ -26,23 +28,130 @@ Student Profile:
 - Difficulty Level: ${difficulty}
 - Domain: ${domain}
 
-Respond ONLY with a valid JSON object:
+Respond ONLY with a valid JSON object. No markdown. No extra text.
+
 {
   "title": "Project title",
   "tagline": "One-line hook",
-  "problem": "Problem statement",
-  "features": ["Feature 1","Feature 2","Feature 3","Feature 4","Feature 5"],
+  "problem": "Problem statement in 2-3 sentences",
+  "targetUsers": ["User type 1", "User type 2", "User type 3"],
+  "domain": "${domain}",
+  "difficulty": "${difficulty}",
+  "timeline": "Estimated build time",
+
+  "objectives": {
+    "primary": "Main objective of the project",
+    "secondary": ["Objective 1", "Objective 2", "Objective 3"],
+    "expectedOutcome": "Expected final outcome of the project"
+  },
+
+  "features": {
+    "essential": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
+    "advanced": ["Advanced Feature 1", "Advanced Feature 2", "Advanced Feature 3"],
+    "bonus": ["Bonus Feature 1", "Bonus Feature 2"]
+  },
+
   "techStack": {
     "frontend": "...",
     "backend": "...",
     "database": "...",
-    "apis": "...",
-    "deployment": "..."
+    "aiModelOrApi": "...",
+    "authentication": "...",
+    "deployment": "...",
+    "developmentTools": ["Tool 1", "Tool 2", "Tool 3"]
   },
-  "monetization": "Monetization strategy",
-  "timeline": "Estimated build time",
-  "difficulty": "${difficulty}",
-  "domain": "${domain}"
+
+  "dayWisePlan": [
+    {
+      "day": "Day 1",
+      "title": "Planning and Requirement Analysis",
+      "tasks": ["Task 1", "Task 2", "Task 3"],
+      "deliverable": "What should be completed on this day"
+    },
+    {
+      "day": "Day 2",
+      "title": "UI/UX Design",
+      "tasks": ["Task 1", "Task 2", "Task 3"],
+      "deliverable": "What should be completed on this day"
+    }
+  ],
+
+  "developmentPhases": [
+    {
+      "phase": "Phase 1",
+      "title": "Planning",
+      "description": "What happens in this phase"
+    },
+    {
+      "phase": "Phase 2",
+      "title": "Design",
+      "description": "What happens in this phase"
+    },
+    {
+      "phase": "Phase 3",
+      "title": "Development",
+      "description": "What happens in this phase"
+    },
+    {
+      "phase": "Phase 4",
+      "title": "Testing and Deployment",
+      "description": "What happens in this phase"
+    }
+  ],
+
+  "skillsLearned": {
+    "technical": ["Skill 1", "Skill 2", "Skill 3", "Skill 4"],
+    "softSkills": ["Skill 1", "Skill 2", "Skill 3"]
+  },
+
+  "resumeValue": {
+    "rating": "Excellent / Good / Average",
+    "description": "How this project improves a student's resume",
+    "resumeBullet": "One strong resume bullet point for this project"
+  },
+
+  "industryRelevance": {
+    "industries": ["Industry 1", "Industry 2", "Industry 3"],
+    "description": "How this project is useful in real industries"
+  },
+
+  "estimatedCost": {
+    "freeTools": ["Tool 1", "Tool 2"],
+    "paidTools": ["Tool 1 if needed"],
+    "approxCost": "₹0 - ₹2000"
+  },
+
+  "documentationChecklist": [
+    "Abstract",
+    "Introduction",
+    "Problem Statement",
+    "Existing System",
+    "Proposed System",
+    "Objectives",
+    "Literature Survey",
+    "System Architecture",
+    "Modules",
+    "Database Design",
+    "Testing",
+    "Results",
+    "Conclusion",
+    "References"
+  ],
+
+  "pptChecklist": [
+    "Title Slide",
+    "Problem Statement",
+    "Existing System",
+    "Proposed Solution",
+    "Objectives",
+    "Architecture Diagram",
+    "Modules",
+    "Technologies Used",
+    "Screenshots",
+    "Results",
+    "Future Scope",
+    "Thank You"
+  ]
 }`.trim(),
 
   resume: ({ resumeText }) => `
@@ -113,7 +222,7 @@ async function callDirectly(type, payload) {
     body: JSON.stringify({
       model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1800,
+     max_tokens: 3500,
       temperature: 0.8,
       response_format: { type: 'json_object' },
     }),
