@@ -1,3 +1,5 @@
+import SearchableMultiSelect from '../components/common/SearchableMultiSelect'
+import { SKILL_OPTIONS, INTEREST_OPTIONS } from '../config/projectSuggestions'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -107,7 +109,12 @@ function ResultCard({ data, onSave, onNew, saving }) {
 
 export default function ProjectGeneratorPage() {
   const { user } = useAuth()
-  const [form, setForm] = useState({ skills: '', interests: '', difficulty: 'Intermediate', domain: 'Web App' })
+ const [form, setForm] = useState({
+  skills: [],
+  interests: [],
+  difficulty: 'Intermediate',
+  domain: 'Web App'
+})
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
@@ -154,7 +161,11 @@ const handleGenerate = async (e) => {
   setLoading(true)
 
   try {
-    const data = await generateProjectIdea(form)
+   const data = await generateProjectIdea({
+  ...form,
+  skills: form.skills.join(', '),
+  interests: form.interests.join(', ')
+})
     setResult(data)
 
    const { data: usageData, error: usageError } = await trackUsage(
@@ -217,28 +228,40 @@ console.log('Usage Error:', usageError)
                 onSubmit={handleGenerate}
                 className="glass-card p-6 space-y-5 sticky top-6"
               >
-                <div>
-                  <label className="block text-xs font-display font-600 text-slate-400 mb-2">Your Skills</label>
-                  <textarea
-                    required
-                    rows={2}
-                    className="input-field resize-none"
-                    placeholder="React, Python, SQL, UI Design…"
-                    value={form.skills}
-                    onChange={e => setForm({ ...form, skills: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-display font-600 text-slate-400 mb-2">Interests</label>
-                  <textarea
-                    required
-                    rows={2}
-                    className="input-field resize-none"
-                    placeholder="Finance, health, gaming, productivity…"
-                    value={form.interests}
-                    onChange={e => setForm({ ...form, interests: e.target.value })}
-                  />
-                </div>
+              <div>
+  <label className="block text-xs font-display font-600 text-slate-400 mb-2">
+    Your Skills
+  </label>
+
+  <SearchableMultiSelect
+    options={SKILL_OPTIONS}
+    value={form.skills}
+    onChange={(selected) =>
+      setForm({
+        ...form,
+        skills: selected,
+      })
+    }
+    placeholder="Search and select your skills..."
+  />
+</div>
+             <div>
+  <label className="block text-xs font-display font-600 text-slate-400 mb-2">
+    Interests
+  </label>
+
+  <SearchableMultiSelect
+    options={INTEREST_OPTIONS}
+    value={form.interests}
+    onChange={(selected) =>
+      setForm({
+        ...form,
+        interests: selected,
+      })
+    }
+    placeholder="Search and select your interests..."
+  />
+</div>
                 <div>
                   <label className="block text-xs font-display font-600 text-slate-400 mb-2">Difficulty</label>
                   <div className="flex gap-2">
