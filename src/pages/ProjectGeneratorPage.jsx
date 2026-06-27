@@ -23,6 +23,11 @@ const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced']
 const DOMAINS = ['Web App', 'Mobile App', 'AI/ML', 'Data Science', 'Blockchain', 'Game Dev', 'IoT', 'Cybersecurity', 'Open Source', 'SaaS Product']
 
 function ResultCard({ data, onSave, onNew, saving }) {
+  const allFeatures = [
+  ...(data.features?.essential || []),
+  ...(data.features?.advanced || []),
+  ...(data.features?.bonus || [])
+]
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
 
@@ -463,7 +468,7 @@ export default function ProjectGeneratorPage() {
                 <div className="glass-card p-10 text-center">
                   <div className="w-10 h-10 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin mx-auto mb-4" />
                   <p className="text-slate-400 text-sm">AI is crafting your complete project blueprint…</p>
-                  <p className="text-slate-600 text-xs mt-1">This takes about 5–10 seconds</p>
+                  <p className="text-slate-600 text-xs mt-1">This takes about 2–4 seconds</p>
                 </div>
               )}
 
