@@ -101,8 +101,19 @@ loadSubscription()
   }, [user])
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
-  const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+ const hour = new Date().getHours()
+
+let greeting = 'Good evening'
+
+if (hour >= 5 && hour < 12) {
+  greeting = 'Good morning'
+} else if (hour >= 12 && hour < 17) {
+  greeting = 'Good afternoon'
+} else if (hour >= 17 && hour < 21) {
+  greeting = 'Good evening'
+} else {
+  greeting = 'Good night'
+}
 
   return (
     <div className="flex min-h-screen bg-dark-950">
