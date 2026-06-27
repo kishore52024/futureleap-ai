@@ -67,10 +67,17 @@ export default function Sidebar() {
 
       {/* User + Signout */}
       <div className="p-3 border-t border-white/[0.06] space-y-1">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all duration-200 text-sm">
-          <Settings className="w-4 h-4 flex-shrink-0" />
-          <span className="font-body">Settings</span>
-        </button>
+      <Link to="/dashboard/settings">
+  <div className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.04] transition-all duration-200 text-sm">
+    <Settings className="w-4 h-4 flex-shrink-0" />
+    <span className="font-body">Settings</span>
+  </div>
+</Link>
+      
+      
+      
+      
+     
         <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-400/[0.06] transition-all duration-200 text-sm"

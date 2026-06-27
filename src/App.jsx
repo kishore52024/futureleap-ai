@@ -9,7 +9,9 @@ import PricingPage from "./pages/PricingPage";
 import ProjectGeneratorPage from './pages/ProjectGeneratorPage'
 import ResumeAnalyzerPage from './pages/ResumeAnalyzerPage'
 import CareerPathPage from './pages/CareerPathPage'
+import SettingsPage from './pages/SettingsPage'
 import './styles/globals.css'
+
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
@@ -35,6 +37,7 @@ function AppRoutes() {
       <Route path="/dashboard/projects" element={<ProtectedRoute><ProjectGeneratorPage /></ProtectedRoute>} />
       <Route path="/dashboard/resume" element={<ProtectedRoute><ResumeAnalyzerPage /></ProtectedRoute>} />
       <Route path="/dashboard/career" element={<ProtectedRoute><CareerPathPage /></ProtectedRoute>} />
+      <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )

@@ -29,6 +29,11 @@ Student Profile:
 - Domain: ${domain}
 
 Respond ONLY with a valid JSON object. No markdown. No extra text.
+Important:
+- The dayWisePlan array MUST contain exactly 10 detailed development days.
+- Each day must include: day, title, 3 to 5 tasks, and deliverable.
+- Do not generate more than 10 days.
+- Make the plan practical for a student mini/major project.
 
 {
   "title": "Project title",
@@ -62,19 +67,13 @@ Respond ONLY with a valid JSON object. No markdown. No extra text.
   },
 
   "dayWisePlan": [
-    {
-      "day": "Day 1",
-      "title": "Planning and Requirement Analysis",
-      "tasks": ["Task 1", "Task 2", "Task 3"],
-      "deliverable": "What should be completed on this day"
-    },
-    {
-      "day": "Day 2",
-      "title": "UI/UX Design",
-      "tasks": ["Task 1", "Task 2", "Task 3"],
-      "deliverable": "What should be completed on this day"
-    }
-  ],
+  {
+    "day": "Day 1",
+    "title": "Planning and Requirement Analysis",
+    "tasks": ["Task 1", "Task 2", "Task 3"],
+    "deliverable": "What should be completed on this day"
+  }
+],
 
   "developmentPhases": [
     {
@@ -236,7 +235,11 @@ async function callDirectly(type, payload) {
 
   const raw = data.choices[0].message.content
   const clean = raw.replace(/```json|```/g, '').trim()
-  return JSON.parse(clean)
+
+console.log("========== AI RESPONSE ==========")
+console.log(clean)
+
+return JSON.parse(clean)
 }
 
 async function call(type, payload) {
