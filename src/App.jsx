@@ -10,6 +10,7 @@ import ProjectGeneratorPage from './pages/ProjectGeneratorPage'
 import ResumeAnalyzerPage from './pages/ResumeAnalyzerPage'
 import CareerPathPage from './pages/CareerPathPage'
 import SettingsPage from './pages/SettingsPage'
+import ResumeCreatorPage from './pages/ResumeCreator'
 import './styles/globals.css'
 
 
@@ -38,10 +39,20 @@ function AppRoutes() {
       <Route path="/dashboard/resume" element={<ProtectedRoute><ResumeAnalyzerPage /></ProtectedRoute>} />
       <Route path="/dashboard/career" element={<ProtectedRoute><CareerPathPage /></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+      <Route
+  path="/dashboard/resume-creator"
+  element={
+    <ProtectedRoute>
+      <ResumeCreatorPage />
+    </ProtectedRoute>
+  }
+/>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )
 }
+
 
 export default function App() {
   return (
