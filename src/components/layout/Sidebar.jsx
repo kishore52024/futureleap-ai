@@ -1,8 +1,16 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
-  Zap, LayoutDashboard, Lightbulb, FileText,
-  FilePlus2, MapPin, Settings, LogOut, ChevronRight
+  Zap,
+  LayoutDashboard,
+  Lightbulb,
+  FileText,
+  FilePlus2,
+  MapPin,
+  ShieldCheck,
+  Settings,
+  LogOut,
+  ChevronRight
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { signOut } from '../../lib/supabase'
@@ -13,6 +21,11 @@ const navItems = [
   { icon: FileText, label: 'Resume Analyzer', path: '/dashboard/resume' },
   { icon: MapPin, label: 'Career Path', path: '/dashboard/career' },
   { icon: FilePlus2, label: 'Resume Creator', path: '/dashboard/resume-creator' },
+  {
+  icon: ShieldCheck,
+  label: 'Project Validator',
+  path: '/dashboard/project-validator'
+},
 ]
 export default function Sidebar() {
   const location = useLocation()
