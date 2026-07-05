@@ -12,6 +12,7 @@ import CareerPathPage from './pages/CareerPathPage'
 import SettingsPage from './pages/SettingsPage'
 import ResumeCreatorPage from './pages/ResumeCreator'
 import ProjectValidatorPage from './pages/ProjectValidatorPage'
+import PortfolioGeneratorPage from './pages/PortfolioGeneratorPage'
 import './styles/globals.css'
 
 
@@ -37,6 +38,10 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/dashboard/projects" element={<ProtectedRoute><ProjectGeneratorPage /></ProtectedRoute>} />
+      <Route
+  path="/dashboard/portfolio-generator"
+  element={<PortfolioGeneratorPage />}
+/>
       <Route path="/dashboard/resume" element={<ProtectedRoute><ResumeAnalyzerPage /></ProtectedRoute>} />
       <Route path="/dashboard/career" element={<ProtectedRoute><CareerPathPage /></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />

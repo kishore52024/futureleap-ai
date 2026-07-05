@@ -249,6 +249,79 @@ Respond ONLY with a valid JSON object:
   "topCompanies": ["Company 1","Company 2","Company 3"],
   "certifications": ["Cert 1","Cert 2"]
 }`.trim(),
+
+portfolio: ({
+  name,
+  role,
+  about,
+  skills,
+  projects,
+  education,
+  github,
+  linkedin,
+  website,
+  theme
+}) => `
+You are an award-winning UI/UX designer and portfolio expert.
+
+Create a modern developer portfolio.
+
+Name: ${name}
+Role: ${role}
+About: ${about}
+Skills: ${skills}
+Projects: ${projects}
+Education: ${education}
+GitHub: ${github}
+LinkedIn: ${linkedin}
+Website: ${website}
+Theme: ${theme}
+
+Respond ONLY with valid JSON.
+
+{
+  "hero": {
+    "name": "${name}",
+    "role": "${role}",
+    "headline": "Professional headline",
+    "description": "Professional introduction"
+  },
+
+  "about": {
+    "content": "Professional about section"
+  },
+
+  "skills": [
+    "React",
+    "JavaScript",
+    "Node.js",
+    "Supabase"
+  ],
+
+  "projects": [
+    {
+      "title": "Project Name",
+      "description": "Project Description",
+      "tech": "React, Supabase",
+      "github": "GitHub URL"
+    }
+  ],
+
+  "education": {
+    "degree": "Degree",
+    "college": "College Name"
+  },
+
+  "contact": {
+    "github": "${github}",
+    "linkedin": "${linkedin}",
+    "website": "${website}"
+  },
+
+  "theme": "${theme}"
+}
+`.trim(),
+
 }
 
 async function callDirectly(type, payload) {
@@ -299,3 +372,4 @@ export const generateProjectIdea = (payload) => call('project', payload)
 export const analyzeResume = (payload) => call('resume', payload)
 export const generateCareerPath = (payload) => call('career', payload)
 export const validateProject = (payload) => call('validator', payload)
+export const generatePortfolio = (payload) => call('portfolio', payload)
