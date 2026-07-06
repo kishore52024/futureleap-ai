@@ -197,22 +197,20 @@ Important:
   ]
 }
 `.trim(),
-career: ({ currentSkills, targetJob }) => `
-...
-`.trim(),
+
 
 validator: ({ title, domain, tech, abstract, features }) => `
-You are an expert software architect, IEEE reviewer, startup mentor, and hackathon judge.
+You are an expert software architect, startup mentor and hackathon judge.
 
-Analyze the following student project.
+Analyze this project.
 
-Project Title:
+Title:
 ${title}
 
 Domain:
 ${domain}
 
-Technology Stack:
+Technology:
 ${tech}
 
 Abstract:
@@ -221,14 +219,14 @@ ${abstract}
 Features:
 ${features}
 
-Respond ONLY with valid JSON.
+Respond ONLY with JSON.
 
 {
-  "score": 91,
-  "innovation": 94,
-  "feasibility": 89,
-  "market": 90,
-  "startup": 92,
+  "score": 90,
+  "innovation": 92,
+  "feasibility": 88,
+  "market": 91,
+  "startup": 89,
   "hackathon": 95,
   "complexity": "Intermediate",
   "verdict": "Excellent project with strong innovation and startup potential.",
@@ -249,7 +247,6 @@ Respond ONLY with valid JSON.
   ]
 }
 `.trim(),
-
 
 
   resume: ({ resumeText }) => `
