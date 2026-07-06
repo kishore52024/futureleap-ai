@@ -1,3 +1,9 @@
+import { useEffect } from 'react'
+import { useAuth } from '../hooks/useAuth'
+import { getSubscription } from '../lib/supabase'
+
+
+
 import { useState } from 'react'
 import PortfolioForm from '../components/portfolio/PortfolioForm'
 import Sidebar from '../components/layout/Sidebar'
@@ -5,6 +11,63 @@ import DeveloperTemplate from '../components/portfolio/templates/DeveloperTempla
 
 export default function PortfolioGeneratorPage() {
   const [portfolio, setPortfolio] = useState(null)
+  const { user } = useAuth()
+
+const [subscription, setSubscription] = useState(null)
+
+const isUltimate = subscription?.plan === 'ultimate'
+useEffect(() => {
+  if (!user) return
+
+  async function loadSubscription() {
+    const { data } = await getSubscription(user.id)
+    setSubscription(data)
+  }
+
+  loadSubscription()
+}, [user])
+if (!isUltimate) {
+  return (
+    <div className="flex min-h-screen bg-dark-950">
+      <Sidebar />
+
+      <main className="flex-1 flex items-center justify-center p-10">
+
+        <div className="glass-card max-w-xl w-full text-center p-10">
+
+          <h1 className="text-3xl font-bold text-white">
+            🌐 Ultimate Feature
+          </h1>
+
+          <p className="text-slate-400 mt-4">
+            The AI Portfolio Website Generator is available exclusively for
+            Ultimate members.
+          </p>
+
+          <div className="mt-8 space-y-3 text-left text-slate-300">
+
+            <p>✅ AI Portfolio Website Generation</p>
+            <p>✅ Multiple Premium Templates</p>
+            <p>✅ Live Website Preview</p>
+            <p>✅ Download React Source Code</p>
+            <p>✅ Premium Themes</p>
+            <p>✅ One-click Deployment (Coming Soon)</p>
+
+          </div>
+
+          <button
+            onClick={() => window.location.href = '/dashboard/pricing'}
+            className="btn-primary mt-8 w-full justify-center"
+          >
+            Upgrade to Ultimate
+          </button>
+
+        </div>
+
+      </main>
+    </div>
+  )
+}
 
   return (
     <div className="flex min-h-screen bg-dark-950">

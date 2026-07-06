@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import Sidebar from '../components/layout/Sidebar'
 import { validateProject } from '../lib/openai'
-import { getSubscription } from '../lib/supabase'
+import { getMonthlyUsage, trackUsage } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 export default function ProjectValidatorPage() {
@@ -17,19 +17,17 @@ export default function ProjectValidatorPage() {
 const [result, setResult] = useState(null)
 const { user } = useAuth()
 
-const [subscription, setSubscription] = useState(null)
-
-const isPro = subscription?.plan === 'pro'
+const [usage, setUsage] = useState(0)
 
 useEffect(() => {
   if (!user) return
 
-  async function loadSubscription() {
-    const { data } = await getSubscription(user.id)
-    setSubscription(data)
+  async function loadUsage() {
+   const { count } = await getMonthlyUsage(user.id, 'project_validator')
+setUsage(count || 0)
   }
 
-  loadSubscription()
+  loadUsage()
 }, [user])
 
 const handleChange = (e) => {
@@ -39,7 +37,12 @@ const handleChange = (e) => {
   })
 }
 
+
 const handleValidate = async () => {
+    if (usage >= 1) {
+  alert('Free plan allows only 1 Project Validation per month.')
+  return
+}
 
   if (
     !project.title ||
@@ -55,6 +58,9 @@ const handleValidate = async () => {
   try {
     const data = await validateProject(project)
     setResult(data)
+    await trackUsage(user.id, 'project_validator')
+
+setUsage(usage + 1)
   } catch (err) {
     alert(err.message)
   }
@@ -176,21 +182,17 @@ const handleValidate = async () => {
   className="input-field resize-none mt-2"
 />
   </div>
-{isPro ? (
-  <button
-    onClick={handleValidate}
-    className="btn-primary w-full justify-center"
-  >
-    Validate Project
-  </button>
-) : (
-  <button
-    className="btn-primary w-full justify-center opacity-60 cursor-not-allowed"
-    disabled
-  >
-    🔒 Upgrade to Pro
-  </button>
-)}
+<button
+  onClick={handleValidate}
+  disabled={usage >= 1}
+  className={`btn-primary w-full justify-center ${
+    usage >= 1 ? 'opacity-60 cursor-not-allowed' : ''
+  }`}
+>
+  {usage >= 1
+    ? 'Monthly Limit Reached'
+    : 'Validate Project'}
+</button>
 
 </div>
 
@@ -200,27 +202,15 @@ const handleValidate = async () => {
   <h2 className="text-white text-xl font-bold">
     AI Validation Report
   </h2>
-  {!isPro && (
-  <div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 p-4 my-4">
-    <h3 className="text-yellow-400 font-semibold">
-      🔒 Pro Feature
-    </h3>
+<div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4 my-4">
+  <h3 className="text-cyan-400 font-semibold">
+    Free Plan
+  </h3>
 
-    <p className="text-slate-300 text-sm mt-2">
-      Upgrade to Pro to unlock:
-    </p>
-
-    <ul className="list-disc ml-5 mt-3 text-slate-300 text-sm space-y-2">
-      <li>AI Project Validation</li>
-      <li>Innovation Analysis</li>
-      <li>Startup Potential</li>
-      <li>Hackathon Readiness</li>
-      <li>Market Demand Analysis</li>
-      <li>AI Suggestions</li>
-      <li>Download PDF Report</li>
-    </ul>
-  </div>
-)}
+  <p className="text-slate-300 text-sm mt-2">
+    {usage}/1 Project Validation used this month.
+  </p>
+</div>
 
   {/* Overall Score */}
   <div className="flex justify-center">
