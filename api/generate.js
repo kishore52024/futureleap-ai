@@ -197,6 +197,60 @@ Important:
   ]
 }
 `.trim(),
+career: ({ currentSkills, targetJob }) => `
+...
+`.trim(),
+
+validator: ({ title, domain, tech, abstract, features }) => `
+You are an expert software architect, IEEE reviewer, startup mentor, and hackathon judge.
+
+Analyze the following student project.
+
+Project Title:
+${title}
+
+Domain:
+${domain}
+
+Technology Stack:
+${tech}
+
+Abstract:
+${abstract}
+
+Features:
+${features}
+
+Respond ONLY with valid JSON.
+
+{
+  "score": 91,
+  "innovation": 94,
+  "feasibility": 89,
+  "market": 90,
+  "startup": 92,
+  "hackathon": 95,
+  "complexity": "Intermediate",
+  "verdict": "Excellent project with strong innovation and startup potential.",
+  "strengths": [
+    "Strength 1",
+    "Strength 2",
+    "Strength 3"
+  ],
+  "weaknesses": [
+    "Weakness 1",
+    "Weakness 2"
+  ],
+  "suggestions": [
+    "Suggestion 1",
+    "Suggestion 2",
+    "Suggestion 3",
+    "Suggestion 4"
+  ]
+}
+`.trim(),
+
+
 
   resume: ({ resumeText }) => `
 You are a top recruiter. Analyze this resume.
@@ -274,11 +328,11 @@ export default async function handler(req, res) {
 
   const { type, payload } = req.body
 
-  if (!type || !payload || !PROMPTS[type]) {
-    return res.status(400).json({
-      error: 'Invalid request. type must be: project | resume | career',
-    })
-  }
+ if (!type || !payload || !PROMPTS[type]) {
+  return res.status(400).json({
+    error: 'Invalid request. type must be: project | resume | career | validator',
+  })
+}
 
   const apiKey = process.env.GROQ_API_KEY
 

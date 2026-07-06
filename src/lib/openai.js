@@ -175,54 +175,6 @@ Respond ONLY with a valid JSON object:
   "keywordsFound": ["keyword1","keyword2"],
   "keywordsMissing": ["keyword1","keyword2"]
 }`.trim(),
-validator: ({ title, domain, tech, abstract, features }) => `
-You are an expert software architect, IEEE reviewer, startup mentor, and hackathon judge.
-
-Analyze the following student project.
-
-Project Title:
-${title}
-
-Domain:
-${domain}
-
-Technology Stack:
-${tech}
-
-Abstract:
-${abstract}
-
-Features:
-${features}
-
-Respond ONLY with valid JSON.
-
-{
-  "score": 91,
-  "innovation": 94,
-  "feasibility": 89,
-  "market": 90,
-  "startup": 92,
-  "hackathon": 95,
-  "complexity": "Intermediate",
-  "verdict": "Excellent project with strong innovation and startup potential.",
-  "strengths": [
-    "Strength 1",
-    "Strength 2",
-    "Strength 3"
-  ],
-  "weaknesses": [
-    "Weakness 1",
-    "Weakness 2"
-  ],
-  "suggestions": [
-    "Suggestion 1",
-    "Suggestion 2",
-    "Suggestion 3",
-    "Suggestion 4"
-  ]
-}
-`.trim(),
 
   career: ({ currentSkills, targetJob }) => `
 You are a tech career counselor. Create a detailed roadmap.
@@ -249,79 +201,6 @@ Respond ONLY with a valid JSON object:
   "topCompanies": ["Company 1","Company 2","Company 3"],
   "certifications": ["Cert 1","Cert 2"]
 }`.trim(),
-
-portfolio: ({
-  name,
-  role,
-  about,
-  skills,
-  projects,
-  education,
-  github,
-  linkedin,
-  website,
-  theme
-}) => `
-You are an award-winning UI/UX designer and portfolio expert.
-
-Create a modern developer portfolio.
-
-Name: ${name}
-Role: ${role}
-About: ${about}
-Skills: ${skills}
-Projects: ${projects}
-Education: ${education}
-GitHub: ${github}
-LinkedIn: ${linkedin}
-Website: ${website}
-Theme: ${theme}
-
-Respond ONLY with valid JSON.
-
-{
-  "hero": {
-    "name": "${name}",
-    "role": "${role}",
-    "headline": "Professional headline",
-    "description": "Professional introduction"
-  },
-
-  "about": {
-    "content": "Professional about section"
-  },
-
-  "skills": [
-    "React",
-    "JavaScript",
-    "Node.js",
-    "Supabase"
-  ],
-
-  "projects": [
-    {
-      "title": "Project Name",
-      "description": "Project Description",
-      "tech": "React, Supabase",
-      "github": "GitHub URL"
-    }
-  ],
-
-  "education": {
-    "degree": "Degree",
-    "college": "College Name"
-  },
-
-  "contact": {
-    "github": "${github}",
-    "linkedin": "${linkedin}",
-    "website": "${website}"
-  },
-
-  "theme": "${theme}"
-}
-`.trim(),
-
 }
 
 async function callDirectly(type, payload) {
@@ -371,5 +250,3 @@ async function call(type, payload) {
 export const generateProjectIdea = (payload) => call('project', payload)
 export const analyzeResume = (payload) => call('resume', payload)
 export const generateCareerPath = (payload) => call('career', payload)
-export const validateProject = (payload) => call('validator', payload)
-export const generatePortfolio = (payload) => call('portfolio', payload)
