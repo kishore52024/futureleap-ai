@@ -201,6 +201,79 @@ Respond ONLY with a valid JSON object:
   "topCompanies": ["Company 1","Company 2","Company 3"],
   "certifications": ["Cert 1","Cert 2"]
 }`.trim(),
+validator: ({ title, domain, tech, abstract, features }) => `
+You are an expert software architect, startup mentor and hackathon judge.
+
+Analyze this project.
+
+Title:
+${title}
+
+Domain:
+${domain}
+
+Technology:
+${tech}
+
+Abstract:
+${abstract}
+
+Features:
+${features}
+
+Respond ONLY with JSON.
+
+{
+  "score": 90,
+  "innovation": 92,
+  "feasibility": 88,
+  "market": 91,
+  "startup": 89,
+  "hackathon": 95,
+  "complexity": "Intermediate",
+  "verdict": "Excellent project with strong innovation and startup potential.",
+  "strengths": [
+    "Strength 1",
+    "Strength 2",
+    "Strength 3"
+  ],
+  "weaknesses": [
+    "Weakness 1",
+    "Weakness 2"
+  ],
+  "suggestions": [
+    "Suggestion 1",
+    "Suggestion 2",
+    "Suggestion 3",
+    "Suggestion 4"
+  ]
+}
+`.trim(),
+
+
+  resume: ({ resumeText }) => `
+You are a top recruiter. Analyze this resume.
+
+Resume:
+${(resumeText || '').slice(0, 4000)}
+
+Respond ONLY with a valid JSON object:
+{
+  "score": 72,
+  "grade": "B",
+  "summary": "Overall assessment",
+  "strengths": ["Strength 1","Strength 2","Strength 3"],
+  "weaknesses": ["Weakness 1","Weakness 2","Weakness 3"],
+  "suggestions": [
+    {"area": "Area name","tip": "Specific advice"},
+    {"area": "Area name","tip": "Specific advice"},
+    {"area": "Area name","tip": "Specific advice"}
+  ],
+  "atsScore": 65,
+  "keywordsFound": ["keyword1","keyword2"],
+  "keywordsMissing": ["keyword1","keyword2"]
+}`.trim(),
+
 }
 
 async function callDirectly(type, payload) {
@@ -250,3 +323,5 @@ async function call(type, payload) {
 export const generateProjectIdea = (payload) => call('project', payload)
 export const analyzeResume = (payload) => call('resume', payload)
 export const generateCareerPath = (payload) => call('career', payload)
+export const validateProject = (payload) => call('validator', payload)
+export const generatePortfolio = (payload) => call('portfolio', payload)

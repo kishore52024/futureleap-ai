@@ -16,16 +16,30 @@ export default function PortfolioGeneratorPage() {
 const [subscription, setSubscription] = useState(null)
 
 const isUltimate = subscription?.plan === 'ultimate'
+const [loadingSubscription, setLoadingSubscription] = useState(true)
 useEffect(() => {
-  if (!user) return
+  if (!user) {
+    setLoadingSubscription(false)
+    return
+  }
 
   async function loadSubscription() {
     const { data } = await getSubscription(user.id)
     setSubscription(data)
+    setLoadingSubscription(false)
   }
 
   loadSubscription()
 }, [user])
+if (loadingSubscription) {
+  return (
+    <div className="flex min-h-screen bg-dark-950 items-center justify-center">
+      <p className="text-white text-lg">
+        Loading...
+      </p>
+    </div>
+  )
+}
 if (!isUltimate) {
   return (
     <div className="flex min-h-screen bg-dark-950">
