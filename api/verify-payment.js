@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
+ process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
@@ -32,15 +32,38 @@ export default async function handler(req, res) {
       })
     }
 
-    const { error } = await supabase
-      .from('subscriptions')
-      .update({
-        plan,
-        status: 'active',
-      })
-      .eq('user_id', userId)
+// Update subscription
 
-    if (error) throw error
+const { error: subError } = await supabase
+  .from('subscriptions')
+  .update({
+    plan,
+    status: 'active',
+    start_date: new Date().toISOString(),
+  })
+  .eq('user_id', userId)
+
+if (subError) throw subError
+
+// Save payment
+
+const amountMap = {
+  student: 199,
+  pro: 299,
+  ultimate: 499,
+}
+
+const { error: payError } = await supabase
+  .from('payments')
+  .insert({
+    user_id: userId,
+    plan,
+    amount: amountMap[plan],
+    payment_id: razorpay_payment_id,
+    status: 'success',
+  })
+
+if (payError) throw payError
 
     return res.status(200).json({
       success: true,

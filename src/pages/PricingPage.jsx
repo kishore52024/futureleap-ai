@@ -17,12 +17,10 @@ const plans = [
     name: 'Free',
     price: '₹0',
     amount: 0,
-    desc: 'Perfect for exploring FutureLeap AI',
     icon: Zap,
+    desc: 'Perfect for exploring FutureLeap AI',
     button: 'Get Started',
     highlight: false,
-    color: 'cyan',
-
     features: [
       ['AI Project Generator', '5 / month'],
       ['Resume Analyzer', '2 / month'],
@@ -31,9 +29,9 @@ const plans = [
       ['Save Projects', '10'],
       ['Community Access', true],
       ['Documentation Generator', false],
-      ['Interview Simulator', false],
       ['Portfolio Generator', false],
       ['Project Validator', false],
+      ['Interview Simulator', false],
       ['Export PDF', false],
     ],
   },
@@ -43,12 +41,10 @@ const plans = [
     name: 'Student',
     price: '₹199',
     amount: 19900,
-    desc: 'Ideal for semester projects',
     icon: Sparkles,
+    desc: 'Ideal for semester projects',
     button: 'Choose Student',
     highlight: false,
-    color: 'green',
-
     features: [
       ['AI Project Generator', '50 / month'],
       ['Resume Analyzer', '20 / month'],
@@ -57,8 +53,8 @@ const plans = [
       ['Documentation Generator', '5 / month'],
       ['Portfolio Generator', '2 / month'],
       ['PPT Generator', '5 / month'],
-      ['Export PDF', true],
       ['Interview Simulator', true],
+      ['Export PDF', true],
       ['Priority Support', false],
     ],
   },
@@ -68,12 +64,10 @@ const plans = [
     name: 'Pro Student',
     price: '₹299',
     amount: 29900,
-    desc: 'Best Value',
     icon: Crown,
+    desc: 'Best Value',
     button: 'Upgrade to Pro',
     highlight: true,
-    color: 'purple',
-
     features: [
       ['AI Project Generator', '100 / month'],
       ['Resume Analyzer', '50 / month'],
@@ -93,12 +87,10 @@ const plans = [
     name: 'Ultimate',
     price: '₹499',
     amount: 49900,
-    desc: 'Everything Unlimited',
     icon: Rocket,
+    desc: 'Everything Unlimited',
     button: 'Go Ultimate',
     highlight: false,
-    color: 'orange',
-
     features: [
       ['AI Project Generator', 'Unlimited'],
       ['Resume Analyzer', 'Unlimited'],
@@ -116,13 +108,11 @@ const plans = [
 ]
 
 function FeatureValue({ value }) {
-  if (value === true) {
+  if (value === true)
     return <Check className="w-4 h-4 text-green-400" />
-  }
 
-  if (value === false) {
+  if (value === false)
     return <X className="w-4 h-4 text-red-400" />
-  }
 
   return (
     <span className="text-xs text-slate-300">
@@ -146,8 +136,7 @@ export default function PricingPage() {
 
     document.body.appendChild(script)
   }, [])
-
-  async function handlePayment(plan) {
+    async function handlePayment(plan) {
     if (plan.id === 'free') {
       navigate('/signup')
       return
@@ -162,6 +151,7 @@ export default function PricingPage() {
     try {
       setLoadingPlan(plan.id)
 
+      // Create Razorpay Order
       const response = await fetch('/api/create-order', {
         method: 'POST',
         headers: {
@@ -175,7 +165,7 @@ export default function PricingPage() {
       const order = await response.json()
 
       if (!order.id) {
-        throw new Error(order.error || 'Unable to create order.')
+        throw new Error(order.error || 'Unable to create Razorpay order.')
       }
 
       const options = {
@@ -185,12 +175,97 @@ export default function PricingPage() {
 
         currency: order.currency,
 
+        order_id: order.id,
+
         name: 'FutureLeap AI',
 
         description: `${plan.name} Subscription`,
 
-        order_id: order.id,
-          return (
+        image: '/logo.png',
+
+        handler: async function (response) {
+          try {
+            const verify = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                ...response,
+                userId: user.id,
+                plan: plan.id,
+              }),
+            })
+
+            const result = await verify.json()
+
+            if (result.success) {
+              alert(
+                `🎉 Congratulations!
+
+Your ${plan.name} Subscription has been activated successfully.`
+              )
+
+              window.location.href = '/dashboard'
+            } else {
+              alert(result.error || 'Payment verification failed.')
+            }
+          } catch (err) {
+            console.error(err)
+            alert('Verification failed.')
+          }
+        },
+
+        prefill: {
+          name:
+            user.user_metadata?.full_name ||
+            user.email?.split('@')[0] ||
+            '',
+
+          email: user.email,
+
+          contact: '',
+        },
+
+        notes: {
+          plan: plan.id,
+          platform: 'FutureLeap AI',
+        },
+
+        theme: {
+          color: '#06b6d4',
+        },
+
+        modal: {
+          ondismiss: function () {
+            console.log('Payment cancelled.')
+          },
+        },
+      }
+
+      const razorpay = new window.Razorpay(options)
+
+      razorpay.on('payment.failed', function (response) {
+        console.error(response.error)
+
+        alert(
+          `Payment Failed
+
+Reason:
+${response.error.description}`
+        )
+      })
+
+      razorpay.open()
+    } catch (err) {
+      console.error(err)
+
+      alert(err.message)
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
+    return (
     <div className="min-h-screen bg-dark-950 text-white px-4 py-10">
       <div className="max-w-7xl mx-auto">
 
@@ -203,13 +278,15 @@ export default function PricingPage() {
             FutureLeap AI Pricing
           </div>
 
-          <h1 className="font-display font-800 text-4xl md:text-5xl mb-4">
-            Choose the Plan That Fits Your Journey
+          <h1 className="font-display font-800 text-5xl mb-4">
+            Choose Your Plan
           </h1>
 
-          <p className="text-slate-400 max-w-2xl mx-auto">
-            Start free and upgrade when you need more AI tools for projects,
-            resumes, career planning, documentation and AI-powered placement preparation.
+          <p className="text-slate-400 max-w-3xl mx-auto">
+            Unlock powerful AI tools for project generation,
+            resume analysis, portfolio creation,
+            documentation, interview preparation,
+            career guidance and much more.
           </p>
 
         </div>
@@ -226,65 +303,81 @@ export default function PricingPage() {
 
               <div
                 key={plan.id}
-                className={`relative glass-card p-6 flex flex-col ${
+                className={`relative glass-card p-6 flex flex-col transition duration-300 hover:scale-[1.02]
+
+                ${
                   plan.highlight
-                    ? 'border-purple-400/60 shadow-neon-purple scale-[1.02]'
+                    ? 'border-purple-400 shadow-neon-purple'
                     : ''
-                }`}
+                }
+              `}
               >
 
                 {plan.highlight && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-cyan-400 text-white text-xs font-bold px-4 py-1 rounded-full">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 px-4 py-1 text-xs font-bold">
                     ⭐ MOST POPULAR
                   </div>
                 )}
 
-                {/* Icon */}
+                <div className="flex items-center gap-3 mb-5">
 
-                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-center">
 
-                  <div className="w-11 h-11 rounded-xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-cyan-400" />
+                    <Icon className="w-6 h-6 text-cyan-400" />
+
                   </div>
 
                   <div>
-                    <h2 className="font-display font-700 text-xl">
+
+                    <h2 className="text-xl font-bold">
+
                       {plan.name}
+
                     </h2>
 
                     <p className="text-xs text-slate-500">
+
                       {plan.desc}
+
                     </p>
+
                   </div>
 
                 </div>
 
-                {/* Price */}
-
                 <div className="mb-6">
-                  <span className="text-4xl font-bold">
+
+                  <span className="text-5xl font-bold">
+
                     {plan.price}
+
                   </span>
 
-                  <span className="text-slate-500 text-sm">
-                    {' '} / month
+                  <span className="text-slate-500">
+
+                    {' '}
+                    /month
                   </span>
+
                 </div>
-
-                {/* Payment Button */}
 
                 <button
                   onClick={() => handlePayment(plan)}
                   disabled={loadingPlan === plan.id}
-                  className={`w-full py-3 rounded-xl font-semibold mb-6 transition ${
+                  className={`w-full rounded-xl py-3 font-semibold mb-6 transition
+
+                  ${
                     plan.highlight
-                      ? 'bg-gradient-to-r from-cyan-400 to-green-400 text-dark-950 hover:opacity-90'
-                      : 'border border-white/10 hover:border-cyan-400/50 text-white'
-                  } ${
+                      ? 'bg-gradient-to-r from-cyan-400 to-green-400 text-black'
+                      : 'border border-white/10 hover:border-cyan-400'
+                  }
+
+                  ${
                     loadingPlan === plan.id
-                      ? 'opacity-60 cursor-not-allowed'
+                      ? 'opacity-50 cursor-not-allowed'
                       : ''
-                  }`}
+                  }
+                `}
                 >
 
                   {loadingPlan === plan.id
@@ -293,19 +386,19 @@ export default function PricingPage() {
 
                 </button>
 
-                {/* Features */}
-
                 <div className="space-y-3 flex-1">
 
                   {plan.features.map(([label, value]) => (
 
                     <div
                       key={label}
-                      className="flex items-center justify-between gap-3 text-sm border-b border-white/[0.04] pb-2"
+                      className="flex justify-between items-center border-b border-white/5 pb-2"
                     >
 
-                      <span className="text-slate-400">
+                      <span className="text-slate-400 text-sm">
+
                         {label}
+
                       </span>
 
                       <FeatureValue value={value} />
@@ -327,45 +420,53 @@ export default function PricingPage() {
 
         <div className="glass-card p-8 mt-12 text-center">
 
-          <h3 className="font-display font-700 text-2xl mb-3">
-            🚀 Built for Students, Projects & Placements
-          </h3>
+          <h2 className="text-3xl font-bold mb-3">
+            Why Choose FutureLeap AI?
+          </h2>
 
           <p className="text-slate-400 max-w-3xl mx-auto leading-7">
-            FutureLeap AI is your all-in-one AI career platform. Generate
-            innovative project ideas, analyze resumes, build career roadmaps,
-            validate projects, create portfolios, generate documentation,
-            prepare presentations, practice interviews, and become
-            placement-ready with powerful AI tools.
+            FutureLeap AI is an all-in-one AI platform built specifically for
+            engineering students. From generating innovative projects and
+            validating ideas to creating documentation, portfolios, resumes,
+            interview preparation, and career roadmaps — everything is powered
+            by AI to help you become industry-ready.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10">
 
             <div>
-              <h4 className="text-3xl font-bold text-cyan-400">10+</h4>
-              <p className="text-slate-500 text-sm mt-1">
+              <h3 className="text-4xl font-bold text-cyan-400">
+                10+
+              </h3>
+              <p className="text-slate-400 mt-2">
                 AI Tools
               </p>
             </div>
 
             <div>
-              <h4 className="text-3xl font-bold text-green-400">24×7</h4>
-              <p className="text-slate-500 text-sm mt-1">
+              <h3 className="text-4xl font-bold text-green-400">
+                24×7
+              </h3>
+              <p className="text-slate-400 mt-2">
                 AI Assistance
               </p>
             </div>
 
             <div>
-              <h4 className="text-3xl font-bold text-purple-400">100%</h4>
-              <p className="text-slate-500 text-sm mt-1">
-                Student Focused
+              <h3 className="text-4xl font-bold text-purple-400">
+                Unlimited
+              </h3>
+              <p className="text-slate-400 mt-2">
+                Project Ideas
               </p>
             </div>
 
             <div>
-              <h4 className="text-3xl font-bold text-yellow-400">∞</h4>
-              <p className="text-slate-500 text-sm mt-1">
-                Future Possibilities
+              <h3 className="text-4xl font-bold text-yellow-400">
+                Premium
+              </h3>
+              <p className="text-slate-400 mt-2">
+                Student Experience
               </p>
             </div>
 
