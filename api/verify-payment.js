@@ -36,12 +36,17 @@ export default async function handler(req, res) {
 
 const { error: subError } = await supabase
   .from('subscriptions')
-  .update({
-    plan,
-    status: 'active',
-    start_date: new Date().toISOString(),
-  })
-  .eq('user_id', userId)
+  .upsert(
+    {
+      user_id: userId,
+      plan,
+      status: 'active',
+      start_date: new Date().toISOString(),
+    },
+    {
+      onConflict: 'user_id',
+    }
+  )
 
 if (subError) throw subError
 
