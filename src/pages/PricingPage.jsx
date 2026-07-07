@@ -168,16 +168,18 @@ export default function PricingPage() {
         throw new Error(order.error || 'Unable to create Razorpay order.')
       }
 
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+    console.log("VITE KEY:", import.meta.env.VITE_RAZORPAY_KEY_ID);
 
-        amount: order.amount,
+const options = {
+  key: import.meta.env.VITE_RAZORPAY_KEY_ID,
 
-        currency: order.currency,
+  amount: order.amount,
 
-        order_id: order.id,
+  currency: order.currency,
 
-        name: 'FutureLeap AI',
+  order_id: order.id,
+
+  name: 'FutureLeap AI',
 
         description: `${plan.name} Subscription`,
 
