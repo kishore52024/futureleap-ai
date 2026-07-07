@@ -16,12 +16,17 @@ export default async function handler(req, res) {
     let amount = 0
 
     switch (plan) {
+        
+     case 'student':
+       amount = 19900; // ₹199.00
+       break;
+       
       case 'pro':
-        amount = 49900 // ₹499.00
+        amount = 29900 // ₹299.00
         break
 
       case 'ultimate':
-        amount = 99900 // ₹999.00
+        amount = 49900 // ₹499.00
         break
 
       default:
